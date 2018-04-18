@@ -22,11 +22,9 @@ import ar.com.api.util.MensajesUtils;
  * @author C02536
  *
  */
-public class UsuarioDaoImpl implements UsuarioDao {
+public class UsuarioDaoImpl extends UsuarioDao {
 
-	ConnectionUtils connection;
-	String consulta;
-	String className;
+	
 
 	public UsuarioDaoImpl() {
 		connection = ConnectionUtils.getIntancesConnection();
@@ -80,7 +78,7 @@ public class UsuarioDaoImpl implements UsuarioDao {
 	}
 
 	@Override
-	public Usuario findByID(int id) throws DaoExcepcion {
+	public Usuario findByID(Object id) throws DaoExcepcion {
 		try {
 			connection.connect();
 			consulta = ConsultaUtils.consultaPorID(className, id);
@@ -106,13 +104,13 @@ public class UsuarioDaoImpl implements UsuarioDao {
 	}
 
 	@Override
-	public int deleteByID(int id) throws DaoExcepcion {
+	public int deleteByID(Object id) throws DaoExcepcion {
 		try {
 			connection.connect();
 			consulta = ConsultaUtils.eliminarPorID(className);
 			ManejadorMensajes.logDebug(consulta);
 			PreparedStatement pt = connection.consultaPreparada(consulta);
-			pt.setInt(1, id);
+			pt.setInt(1, (int)id);
 			return pt.executeUpdate();
 		} catch (ClassNotFoundException | SQLException e) {
 			ManejadorMensajes.logError(MensajesUtils.MSJ_ERROR_CONECTARSE_DB, e);
@@ -132,7 +130,6 @@ public class UsuarioDaoImpl implements UsuarioDao {
 			PreparedStatement pt = connection.consultaPreparada(consulta);
 			pt.setString(valor++, t.getNombre());
 			pt.setString(valor++,t.getMail());
-			pt.setDate(valor++, new java.sql.Date(t.getFechaAlta().getTime()));
 			pt.setString(valor++,t.getPassword());
 			return pt.executeUpdate();
 		} catch (ClassNotFoundException | SQLException e) {
@@ -143,10 +140,7 @@ public class UsuarioDaoImpl implements UsuarioDao {
 		}
 	}
 
-	private void limpiar() {
-		connection.disconnect();
-		consulta = "";
-	}
+	
 	
 
 }

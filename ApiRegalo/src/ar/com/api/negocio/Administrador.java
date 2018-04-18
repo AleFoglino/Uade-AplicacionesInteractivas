@@ -20,7 +20,7 @@ public class Administrador extends Rol {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Administrador(int id, String nombre, String estado, Date fechaAlta, String prefijo, boolean esAdminSistema) {
+	public Administrador(String id, String nombre, String estado, Date fechaAlta, String prefijo, boolean esAdminSistema) {
 		super(id, nombre, estado, fechaAlta, prefijo);
 		this.esAdminSistema = esAdminSistema;
 	}

@@ -18,7 +18,7 @@ public class Asistente extends Rol{
 		// TODO Auto-generated constructor stub
 	}
 
-	public Asistente(int id, String nombre, String estado, Date fechaAlta, String prefijo) {
+	public Asistente(String id, String nombre, String estado, Date fechaAlta, String prefijo) {
 		super(id, nombre, estado, fechaAlta, prefijo);
 		// TODO Auto-generated constructor stub
 	}

@@ -11,7 +11,7 @@ import java.util.Date;
  */
 public abstract class Rol {
 
-	private int Id;
+	private String Id; 
 	private String nombre;
 	private String estado;
 	private Date fechaAlta;
@@ -33,11 +33,11 @@ public abstract class Rol {
 		this.nombre = nombre;
 	}
 
-	public int getId() {
+	public String getId() {
 		return Id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		Id = id;
 	}
 
@@ -65,7 +65,7 @@ public abstract class Rol {
 		this.prefijo = prefijo;
 	}
 
-	public Rol(int id, String nombre, String estado, Date fechaAlta, String prefijo) {
+	public Rol(String id, String nombre, String estado, Date fechaAlta, String prefijo) {
 		super();
 		Id = id;
 		this.nombre = nombre;

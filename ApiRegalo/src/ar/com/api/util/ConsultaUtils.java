@@ -20,15 +20,19 @@ public class ConsultaUtils {
 		return ManejadorMensajes.consultarMensajePorParametro(FIND_ALL, nombreTabla);
 	}
 
-	public static String consultaPorID(String nombreTabla,int id) {
+	public static String consultaPorID(String nombreTabla,Object id) {
 		return ManejadorMensajes.consultarMensajePorParametro(FIND_BY_ID, nombreTabla,id);
 	}
 	
-	public static String consultaPorParametro(String nombreTabla,String key,int id) {
+	public static String consultaPorParametro(String nombreTabla,String key,Object id) {
 		return ManejadorMensajes.consultarMensajePorParametro(FIND_BY_KEY, nombreTabla,key,id);
 	}
 	
 	public static String eliminarPorID(String nombreTabla) {
 		return ManejadorMensajes.consultarMensajePorParametro(DELETE_BY_ID, nombreTabla);
+	}
+	
+	public static String consultaByParametros(String consulta,Object ...key) {
+		return ManejadorMensajes.consultarMensajePorParametro(DELETE_BY_ID, key);
 	}
 }

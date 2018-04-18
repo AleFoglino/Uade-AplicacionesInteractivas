@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class Grupo {
 
+	private int id;
 	private String nombre;
 	private String agasajado;
 	private Date fechaAlta;
@@ -26,6 +27,17 @@ public class Grupo {
 	}
 
 	
+	public Grupo(int id, String nombre, String agasajado, Date fechaAlta, float montoTotalRecudado) {
+		super();
+		this.id = id;
+		this.nombre = nombre;
+		this.agasajado = agasajado;
+		this.fechaAlta = fechaAlta;
+		this.montoTotalRecudado = montoTotalRecudado;
+	}
+
+
+
 	public List<MiembroDelGrupo> getMiembroDelGrupos() {
 		return miembroDelGrupos;
 	}
@@ -66,6 +78,16 @@ public class Grupo {
 
 	public void setFechaAlta(Date fechaAlta) {
 		this.fechaAlta = fechaAlta;
+	}
+
+
+	public int getId() {
+		return id;
+	}
+
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 }

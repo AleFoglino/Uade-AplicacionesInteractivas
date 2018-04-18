@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ar.com.api.dao;
+package ar.com.api.dao.impl;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,11 +9,11 @@ import java.sql.SQLException;
 import java.util.List;
 
 import ar.com.api.convert.ConvertObject;
+import ar.com.api.dao.GrupoDao;
 import ar.com.api.excepciones.ConvertDaoException;
 import ar.com.api.excepciones.DaoExcepcion;
-import ar.com.api.negocio.Administrador;
-import ar.com.api.negocio.Asistente;
-import ar.com.api.negocio.Rol;
+import ar.com.api.negocio.Grupo;
+import ar.com.api.negocio.Usuario;
 import ar.com.api.util.ConnectionUtils;
 import ar.com.api.util.ConsultaUtils;
 import ar.com.api.util.ManejadorMensajes;
@@ -21,44 +21,42 @@ import ar.com.api.util.MensajesUtils;
 
 /**
  * @author Alejandro Foglino
- * @param <T>
  *
  */
-public abstract class RolDao<T> extends Dao<Rol>{
+public class GrupoDaoImpl extends GrupoDao {
 
-
-	protected static String UPDATE_ROL = "UPDATE {0} SET Nombre = ?, Estado = ?  WHERE Id = {1}";
-	protected static String INSERT_ROL = "Insert into {0} (Nombre, Estado,FechaAlta,EsAdminSistema) values (?,?,?,?)";
-	
-	protected ConnectionUtils connection;
-	String consulta;
-	String className;
-	
-	public RolDao(){
-		
+	/**
+	 * 
+	 */
+	public GrupoDaoImpl() {
 		connection = ConnectionUtils.getIntancesConnection();
-		className = ManejadorMensajes.formatoNombreDeClase(Rol.class.getName().toString().toLowerCase());
-		consulta = "";
+		className = ManejadorMensajes.formatoNombreDeClase(Usuario.class.getName().toString().toLowerCase());
+
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see ar.com.api.dao.Dao#save(java.lang.Object)
 	 */
 	@Override
-	public Rol save(Rol t) throws DaoExcepcion {
-		int valores = 1;
+	public Grupo save(Grupo t) throws DaoExcepcion {
 		try {
+			int valores = 1;
 			connection.connect();
-			consulta = ManejadorMensajes.consultarMensajePorParametro(INSERT_ROL, className);
+			consulta = ManejadorMensajes.consultarMensajePorParametro(INSERT_GRUPO, className);
 			ManejadorMensajes.logDebug(consulta);
 			PreparedStatement pt = connection.consultaPreparadaPorID(consulta);
-			t.setId(getPrefijo(t));
-			pt.setString(valores++, t.getId());
 			pt.setString(valores++, t.getNombre());
-			pt.setString(valores++, t.getEstado());
 			pt.setDate(valores++, new java.sql.Date(t.getFechaAlta().getTime()));
-			pt.setBoolean(valores++, esAdminSistema(t));
+			pt.setString(valores++, t.getAgasajado());
+			pt.setFloat(valores++, t.getMontoTotalRecudado());
 			pt.executeUpdate();
+			ResultSet rs = pt.getGeneratedKeys();
+			while (rs.next()) {
+				t.setId(rs.getInt(1));
+				ManejadorMensajes.logDebug("Id Grupo generado: " + t.getId());
+			}
 			return t;
 		} catch (ClassNotFoundException | SQLException e) {
 			ManejadorMensajes.logError(MensajesUtils.MSJ_ERROR_CONECTARSE_DB, e);
@@ -68,45 +66,19 @@ public abstract class RolDao<T> extends Dao<Rol>{
 		}
 	}
 
-	/**
-	 * @param t 
-	 * @return
-	 */
-	private boolean esAdminSistema(Rol t) {
-		if (t instanceof Administrador) {
-			Administrador a = (Administrador)t;
-			return a.isAdminSistema();
-		}
-		return false;
-	}
-
-	
-
-	/**
-	 * @param t
-	 * @return
-	 * @throws ClassNotFoundException 
-	 */
-	private String getPrefijo(Rol t) throws ClassNotFoundException   {
-		if (t instanceof Administrador) {
-			return ConsultaUtils.PREFIJO_ADMIN;
-		}else if(t instanceof Asistente){
-			return ConsultaUtils.PREFIJO_ASISTENTE;
-		}
-		throw  new ClassNotFoundException("Error al obtener el prefijo del rol.");
-	}
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see ar.com.api.dao.Dao#findAll()
 	 */
 	@Override
-	public List<Rol> findAll() throws DaoExcepcion {
+	public List<Grupo> findAll() throws DaoExcepcion {
 		try {
 			connection.connect();
 			consulta = ConsultaUtils.consultaPorTodos(className);
 			ManejadorMensajes.logDebug(consulta);
 			ResultSet rs = connection.ejecutarConsulta(consulta);
-			return ConvertObject.convertRSToRol(rs);
+			return ConvertObject.convertRSToGrupo(rs);
 		} catch (ClassNotFoundException | SQLException e) {
 			ManejadorMensajes.logError(MensajesUtils.MSJ_ERROR_CONECTARSE_DB, e);
 			throw new DaoExcepcion(MensajesUtils.MSJ_ERROR_CONECTARSE_DB, e);
@@ -118,17 +90,19 @@ public abstract class RolDao<T> extends Dao<Rol>{
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see ar.com.api.dao.Dao#findByID(int)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ar.com.api.dao.Dao#findByID(java.lang.Object)
 	 */
 	@Override
-	public Rol findByID(Object id) throws DaoExcepcion {
+	public Grupo findByID(Object id) throws DaoExcepcion {
 		try {
 			connection.connect();
 			consulta = ConsultaUtils.consultaPorID(className, id);
 			ManejadorMensajes.logDebug(consulta);
 			ResultSet rs = connection.ejecutarConsulta(consulta);
-			List<Rol> list = ConvertObject.convertRSToRol(rs);
+			List<Grupo> list = ConvertObject.convertRSToGrupo(rs);
 			if (list.size() == 0)
 				throw new DaoExcepcion(ManejadorMensajes
 						.consultarMensajePorParametro(MensajesUtils.MSJ_WARNING_OBJETO_NO_ENCONTRADO, className));
@@ -147,26 +121,28 @@ public abstract class RolDao<T> extends Dao<Rol>{
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see ar.com.api.dao.Dao#deleteByID(int)
 	 */
 	@Override
 	public int deleteByID(Object id) throws DaoExcepcion {
 		try {
 			connection.connect();
-			consulta = ConsultaUtils.consultaPorParametro("roles_usuario_grupo", "Id_Rol_FK", id);
+			consulta = ConsultaUtils.consultaPorParametro("roles_usuario_grupo", "Id_Grupo_FK", id);
 			ManejadorMensajes.logDebug(consulta);
 			ResultSet rs = connection.ejecutarConsulta(consulta);
-			List<Rol> list = ConvertObject.convertRSToRol(rs);
-			if(list.size() >0){
-				throw new SQLException("No se puede borrar el rol, debido que esta asigando a un usuarios y un grupo.");
+			List<Grupo> list = ConvertObject.convertRSToGrupo(rs);
+			if (list.size() > 0) {
+				throw new SQLException("No se puede borrar el Grupo, debido que esta asigando a un usuarios y un rol.");
 			}
 			consulta = ConsultaUtils.eliminarPorID(className);
 			ManejadorMensajes.logDebug(consulta);
 			PreparedStatement pt = connection.consultaPreparada(consulta);
-			pt.setString(1, (String)id);
+			pt.setString(1, (String) id);
 			return pt.executeUpdate();
-		} catch (ClassNotFoundException | SQLException | ConvertDaoException  e) {
+		} catch (ClassNotFoundException | SQLException | ConvertDaoException e) {
 			ManejadorMensajes.logError(MensajesUtils.MSJ_ERROR_CONECTARSE_DB, e);
 			throw new DaoExcepcion(e.getMessage(), e);
 		} finally {
@@ -174,19 +150,22 @@ public abstract class RolDao<T> extends Dao<Rol>{
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see ar.com.api.dao.Dao#update(java.lang.Object)
 	 */
 	@Override
-	public int update(Rol t) throws DaoExcepcion {
+	public int update(Grupo t) throws DaoExcepcion {
 		try {
 			int valor = 1;
 			connection.connect();
-			consulta = ManejadorMensajes.consultarMensajePorParametro(UPDATE_ROL, className,t.getId());
+			consulta = ManejadorMensajes.consultarMensajePorParametro(UPDATE_GRUPO, className, t.getId());
 			ManejadorMensajes.logDebug(consulta);
 			PreparedStatement pt = connection.consultaPreparada(consulta);
 			pt.setString(valor++, t.getNombre());
-			pt.setString(valor++,t.getEstado());
+			pt.setString(valor++, t.getAgasajado());
+			pt.setFloat(valor++, t.getMontoTotalRecudado());
 			return pt.executeUpdate();
 		} catch (ClassNotFoundException | SQLException e) {
 			ManejadorMensajes.logError(MensajesUtils.MSJ_ERROR_CONECTARSE_DB, e);
@@ -195,6 +174,53 @@ public abstract class RolDao<T> extends Dao<Rol>{
 			limpiar();
 		}
 	}
-	
-	
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ar.com.api.dao.GrupoDao#saveParticipante(int, java.lang.String, int)
+	 */
+	@Override
+	public int saveParticipante(int idUsuario, String idRol, int idGrupo) throws DaoExcepcion {
+		try {
+			int valores = 1;
+			connection.connect();
+			consulta = "INSERT INTO roles_usuario_grupo  VALUES (?,?,?,?)";
+			ManejadorMensajes.logDebug(consulta);
+			PreparedStatement pt = connection.consultaPreparadaPorID(consulta);
+			pt.setInt(valores++, idUsuario);
+			pt.setInt(valores++, idGrupo);
+			pt.setFloat(valores++, 0);
+			pt.setString(valores++, idRol);
+			return pt.executeUpdate();
+		} catch (ClassNotFoundException | SQLException e) {
+			ManejadorMensajes.logError(MensajesUtils.MSJ_ERROR_CONECTARSE_DB, e);
+			throw new DaoExcepcion(MensajesUtils.MSJ_ERROR_CONECTARSE_DB, e);
+		} finally {
+			limpiar();
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see ar.com.api.dao.GrupoDao#payParticipante(int, java.lang.String, int, float)
+	 */
+	@Override
+	public int payParticipante(int idUsuario, String idRol, int idGrupo, float monto) throws DaoExcepcion {
+		try {
+			int valor = 1;
+			connection.connect();
+			consulta = "UPDATE `roles_usuario_grupo` SET MontoDepositado = ?  WHERE Id_Usuario_FK={0} and Id_Grupo_FK={1} and Id_Rol_FK= {2}";
+			consulta = ConsultaUtils.consultaByParametros(consulta, idUsuario, idGrupo,idRol );
+			ManejadorMensajes.logDebug(consulta);
+			PreparedStatement pt = connection.consultaPreparada(consulta);
+			pt.setFloat(valor++, monto);
+			return pt.executeUpdate();
+		} catch (ClassNotFoundException | SQLException e) {
+			ManejadorMensajes.logError(MensajesUtils.MSJ_ERROR_CONECTARSE_DB, e);
+			throw new DaoExcepcion(MensajesUtils.MSJ_ERROR_CONECTARSE_DB, e);
+		} finally {
+			limpiar();
+		}
+	}
+
 }
